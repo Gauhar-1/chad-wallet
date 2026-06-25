@@ -52,6 +52,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} dark`}>
       <body className="font-sans bg-[#0a0e1a] text-white antialiased min-h-screen flex flex-col">
         <AppProviders>
+
           
           {/* Header */}
           <Header />

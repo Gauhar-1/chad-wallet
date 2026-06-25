@@ -8,7 +8,7 @@ import { useState, memo } from 'react';
 import SwapForm from './SwapForm';
 import PositionsList from './PositionsList';
 import { cn } from '@/lib/utils';
-import AuthGuard from '@/features/auth/AuthGuard';
+import AuthGuard from '@/components/auth/AuthGuard';
 
 interface SwapPanelProps {
   tokenAddress: string;
