@@ -52,9 +52,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} dark`}>
       <body className="font-sans bg-[#0a0e1a] text-white antialiased min-h-screen flex flex-col">
         <AppProviders>
-          {/* Top token banner */}
-          {/* <TokenBanner direction="left" speed="normal" /> */}
-
+          
           {/* Header */}
           <Header />
 
@@ -62,7 +60,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
 
           {/* Bottom token banner */}
-          <TokenBanner direction="right" speed="slow" />
+          <TokenBanner direction="right" speed="fast" />
         </AppProviders>
       </body>
     </html>

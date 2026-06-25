@@ -19,48 +19,90 @@ function getCoinGeckoHeaders() {
 }
 
 /**
- * Fetch trending tokens from CoinGecko filtered/extracted for Solana
+ * Fetch live market data for a strict list of top Solana ecosystem tokens.
+ * Uses concurrent parallel fetching and filters out any assets that fail to return live data.
  */
 export async function getTrendingTokens() {
-  const res = await fetch(`${COINGECKO_API}/search/trending`, {
-    headers: getCoinGeckoHeaders(),
-    next: { revalidate: 60 }
-  });
-  
-  if (!res.ok) {
-    throw new Error(`CoinGecko trending fetch failed: ${res.status}`);
+  // Strict List of top Solana token mints
+  const TOP_SOLANA_TOKENS = [
+    { symbol: 'SOL', address: 'So11111111111111111111111111111111111111112' },
+    { symbol: 'JUP', address: 'JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN' },
+    { symbol: 'WIF', address: 'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYtM2wYSzjn' },
+    { symbol: 'BONK', address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263' },
+    { symbol: 'PYTH', address: 'HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3HbsfGQ2N2LwwF' },
+    { symbol: 'RAY', address: '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R' },
+    { symbol: 'JTO', address: 'jtojtomepa8beP8AuQc6eP9N2r6q2Y3J8kU6q8Q4hQ3' },
+    { symbol: 'BOME', address: 'ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82' },
+    { symbol: 'POPCAT', address: '7GCihgDB8fe6KNjn2TW33WwNxgzZpA4C7k7A4N17N5pE' },
+    { symbol: 'MEW', address: 'MEW1gQWJ3nEXg2qgERiKu7FAFj79PHvQVREQUzScBAB' },
+  ];
+
+  try {
+    // 1. Fire high-speed concurrent requests for each token individually
+    const fetchPromises = TOP_SOLANA_TOKENS.map(async (token) => {
+      try {
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${token.address}`, {
+          next: { revalidate: 30 } // Cache endpoints for 30 seconds
+        });
+        
+        if (!res.ok) return null;
+        const data = await res.json();
+        
+        // Isolate pairs for this specific asset and grab the one with the highest liquidity
+        const pairs = data.pairs?.filter((p: any) => p.baseToken.address === token.address) || [];
+        const bestPair = pairs.sort((a: any, b: any) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
+
+        if (!bestPair) return null;
+
+        return {
+          address: token.address,
+          coingeckoId: token.address,
+          symbol: token.symbol,
+          name: bestPair.baseToken.name || token.symbol,
+          decimals: 9,
+          logoURI: bestPair.info?.imageUrl || null,
+          price: parseFloat(bestPair.priceUsd) || 0,
+          priceChange24hPercent: bestPair.priceChange?.h24 || 0,
+          volume24hUSD: bestPair.volume?.h24 || 0,
+          marketCap: bestPair.fdv || 0,
+          rank: 0,
+        };
+      } catch (err) {
+        console.error(`Failed fetching pair for ${token.symbol}:`, err);
+        return null;
+      }
+    });
+
+    // 2. Resolve all promises concurrently
+    const results = await Promise.all(fetchPromises);
+    
+    // 3. Strict Filter: Extract only successfully resolved live data payloads
+    const mappedTokens = results.filter(Boolean);
+
+    if (mappedTokens.length === 0) throw new Error("All token fetches returned null");
+    
+    return mappedTokens;
+
+  } catch (error) {
+    console.error("Failed to execute concurrent trending fetch:", error);
+    
+    // Secure UI fallback state using a single guaranteed live token asset (SOL)
+    return [{
+      address: 'So11111111111111111111111111111111111111112',
+      coingeckoId: 'solana',
+      symbol: 'SOL',
+      name: 'Solana',
+      decimals: 9,
+      logoURI: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
+      price: 0,
+      priceChange24hPercent: 0,
+      volume24hUSD: 0,
+      marketCap: 0,
+      rank: 1,
+    }];
   }
-  
-  const data = await res.json();
-  
-  // Map and isolate tokens that have a valid Solana contract address
-  return data.coins
-    .map((coin: any) => {
-      const solanaAddress = coin.item.platforms?.solana;
-      
-      // Fallback for native SOL if the item is Solana itself
-      const verifiedAddress = coin.item.id === 'solana' 
-        ? 'So11111111111111111111111111111111111111112' 
-        : solanaAddress;
-
-      if (!verifiedAddress) return null;
-
-      return {
-        address: verifiedAddress,
-        coingeckoId: coin.item.id,
-        symbol: coin.item.symbol.toUpperCase(),
-        name: coin.item.name,
-        decimals: 9,
-        logoURI: coin.item.thumb || coin.item.small,
-        price: coin.item.data?.price || 0,
-        priceChange24hPercent: coin.item.data?.price_change_percentage_24h?.usd || 0,
-        volume24hUSD: coin.item.data?.total_volume ? parseFloat(coin.item.data.total_volume.replace(/[^0-9.-]+/g, "")) : 0,
-        marketCap: coin.item.data?.market_cap ? parseFloat(coin.item.data.market_cap.replace(/[^0-9.-]+/g, "")) : 0,
-        rank: coin.item.market_cap_rank,
-      };
-    })
-    .filter(Boolean); // Remove non-Solana assets from the dashboard tracking
 }
+
 
 /**
  * Resolve a Solana contract address to a CoinGecko ID.

@@ -390,14 +390,18 @@ To properly secure the Vercel deployment with Cloudflare's WAF and DDoS protecti
 
 ### 4. Codex GraphQL
 
-**Decision:** We use Codex GraphQL API for all token, market, and chart data, moving away from BirdEye due to rate limits.
+**Decision:** We deprecated CoinGecko (which primarily returns global, non-Solana assets) and Jupiter's token registry (prone to domain changes/sunsetting). We now hardcode a "Strict List" blueprint and hydrate it with live spot pricing via DexScreener's free, keyless API.
 
 **Trade-off:**
-- ✅ Scalable GraphQL endpoint without the strict 1 RPS limits of the free tier
-- ✅ Single endpoint (`https://graph.codex.io/graphql`) for all queries
-- ❌ Requires mapping GraphQL queries instead of simple REST endpoints
+- ✅ 100% Uptime: Decouples the UI from centralized token registries going down.
 
-**Mitigation:** Edge caching via Vercel headers + React Query stale-while-revalidate pattern.
+- ✅ Zero-Cost Infrastructure: DexScreener is free and requires no API keys.
+
+- ✅ Data Fidelity: Returns exact Solana-specific pairs and liquidity pools.
+
+- ❌ Challenge: DexScreener truncates responses to a 30-pair limit when bulk fetching.
+
+**Mitigation:** We implemented a concurrent batching strategy (Promise.all) that fires simultaneous requests for individual tokens.
 
 ### 5. TradingView Lightweight Charts vs. Full TradingView Widget
 
@@ -411,15 +415,17 @@ To properly secure the Vercel deployment with Cloudflare's WAF and DDoS protecti
 - ❌ Must build custom crosshair, tooltip, and overlay features
 - ❌ Data normalization required (Codex OHLCV → TradingView format)
 
-### 6. Tailwind CSS v4 over v3
+### 6. GPU-Accelerated UI Engineering
 
-**Decision:** Use the latest Tailwind v4 with the new `@import "tailwindcss"` syntax.
+**Decision:** Infinite marquee tickers and dynamic screensavers are built using native CSS translate3d and direct DOM mutation, bypassing React state.
 
 **Trade-off:**
-- ✅ Better performance (Rust-based compiler)
-- ✅ Simplified configuration (no `tailwind.config.ts` needed for basics)
-- ❌ Ecosystem plugins may not all be compatible yet
-- ❌ Different configuration syntax from v3 documentation
+
+- ✅ Butter-smooth 60fps animations that offload rendering to the GPU.
+
+- ✅ Mathematically perfect tear-free loops (using dual-track 100% translation).
+
+- ❌ Code is slightly more verbose and requires manual useRef management.
 
 ---
 
