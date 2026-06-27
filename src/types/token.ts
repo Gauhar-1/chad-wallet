@@ -95,6 +95,7 @@ export interface ChartCandle {
   high: number;
   low: number;
   close: number;
+  volume?: number;
 }
 
 /** Chart timeframe options */

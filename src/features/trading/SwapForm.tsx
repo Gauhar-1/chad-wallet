@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 import { useSwapQuote } from '@/hooks/useSwapQuote';
 import { useSwapExecute } from '@/hooks/useSwapExecute';
+import { logger } from '@/lib/logger';
 import { SOL_MINT, DEFAULT_SLIPPAGE_BPS } from '@/lib/constants';
 import { formatPrice, formatCompact, cn } from '@/lib/utils';
 
@@ -17,10 +18,10 @@ interface SwapFormProps {
 }
 
 const QUICK_AMOUNTS = [
-  { label: '25%', value: 0.25 },
-  { label: '50%', value: 0.5 },
-  { label: '75%', value: 0.75 },
-  { label: '100%', value: 1 },
+  { label: '$10', value: 10 },
+  { label: '$100', value: 100 },
+  { label: '$500', value: 500 },
+  { label: '$1000', value: 1000 },
 ];
 
 const SLIPPAGE_OPTIONS = [50, 100, 300]; // basis points
@@ -73,7 +74,7 @@ const SwapForm = memo(function SwapForm({ tokenAddress }: SwapFormProps) {
         userPublicKey: 'connect-wallet-to-swap',
       });
     } catch (err) {
-      console.error('Swap failed:', err);
+      logger.error('Swap failed:', err);
     }
   }, [quote, swapExecute]);
 
@@ -107,7 +108,7 @@ const SwapForm = memo(function SwapForm({ tokenAddress }: SwapFormProps) {
         <Input
           type="text"
           inputMode="decimal"
-          placeholder="0.00"
+          placeholder="$0"
           value={amount}
           onChange={handleAmountChange}
           className="text-lg font-semibold h-12"
@@ -218,23 +219,61 @@ const SwapForm = memo(function SwapForm({ tokenAddress }: SwapFormProps) {
       </div>
 
       {/* Swap button */}
-      <Button
-        variant={side === 'buy' ? 'success' : 'danger'}
-        size="lg"
-        className="w-full"
+      <button
         disabled={!amount || !quote || swapExecute.isPending}
-        isLoading={swapExecute.isPending}
         onClick={handleSwap}
+        className={cn(
+          "w-full h-12 rounded-xl text-sm transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2",
+          side === 'buy'
+            ? "bg-gradient-to-r from-[#4ade80] to-[#22c55e] text-black font-bold"
+            : "bg-gradient-to-r from-red-500 to-red-400 text-white font-bold"
+        )}
       >
+        {swapExecute.isPending ? (
+          <span className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+        ) : null}
         {side === 'buy' ? 'Buy Token' : 'Sell Token'}
-      </Button>
+      </button>
 
       {/* Price impact warning */}
       {quote && parseFloat(quote.priceImpactPct || '0') > 5 && (
-        <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-400 text-center">
-          ⚠️ High price impact ({parseFloat(quote.priceImpactPct).toFixed(1)}%). Consider reducing your trade size.
+        <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-400 text-center mt-2">
+          ⚠️ High price impact ({parseFloat(quote.priceImpactPct).toFixed(1)}%).
         </div>
       )}
+
+      {/* Volume Progress Bars Placeholder */}
+      <div className="pt-4 mt-6 border-t border-white/[0.04]">
+        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Buy / Sell Volume</h4>
+        <div className="space-y-3">
+          <div>
+            <div className="flex justify-between text-[11px] text-gray-500 mb-1">
+              <span>Buys (24h)</span>
+              <span className="text-emerald-400 font-medium">68%</span>
+            </div>
+            <div className="h-1.5 w-full bg-white/[0.04] rounded-full overflow-hidden">
+              <div className="h-full bg-emerald-500 w-[68%]" />
+            </div>
+          </div>
+          <div>
+            <div className="flex justify-between text-[11px] text-gray-500 mb-1">
+              <span>Sells (24h)</span>
+              <span className="text-red-400 font-medium">32%</span>
+            </div>
+            <div className="h-1.5 w-full bg-white/[0.04] rounded-full overflow-hidden">
+              <div className="h-full bg-red-500 w-[32%]" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* About Token Placeholder */}
+      <div className="pt-4 mt-4 border-t border-white/[0.04]">
+        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">About Token</h4>
+        <p className="text-xs text-gray-500 leading-relaxed">
+          This token is actively traded on the Solana blockchain. Real-time market data is provided by Jupiter and DexScreener.
+        </p>
+      </div>
     </div>
   );
 });

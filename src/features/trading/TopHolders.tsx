@@ -18,13 +18,9 @@ const TopHolders = memo(function TopHolders({ tokenAddress }: TopHoldersProps) {
   const { data: holders, isLoading } = useTopHolders(tokenAddress);
 
   return (
-    <div className="border-b border-white/[0.04]">
-      <div className="px-4 py-2 border-b border-white/[0.04]">
-        <h3 className="text-sm font-semibold text-white">Top Traders (24h)</h3>
-      </div>
-
-      {/* Table header */}
-      <div className="grid grid-cols-[1fr_80px_80px_80px] gap-2 px-4 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider border-b border-white/[0.04]">
+    <div className="h-full flex flex-col">
+      {/* Table header (Sticky) */}
+      <div className="sticky top-0 z-10 bg-[#050505] grid grid-cols-[1fr_80px_80px_80px] gap-2 px-4 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider border-b border-white/[0.04]">
         <span>Wallet</span>
         <span className="text-right">Volume</span>
         <span className="text-right">Trades</span>
@@ -32,7 +28,7 @@ const TopHolders = memo(function TopHolders({ tokenAddress }: TopHoldersProps) {
       </div>
 
       {/* Table body */}
-      <div className="max-h-[240px] overflow-y-auto scrollbar-thin">
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <TableRowSkeleton key={i} cols={4} />

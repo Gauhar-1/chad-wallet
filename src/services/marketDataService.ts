@@ -2,6 +2,8 @@
 // Market Data Service — Client for CoinGecko & Jupiter Price APIs
 // =============================================================================
 
+import { logger } from '@/lib/logger';
+
 // Note: CoinGecko's Demo API Plan uses a specific subdomain
 const COINGECKO_API = 'https://api.coingecko.com/api/v3';
 const JUPITER_PRICE_API = 'https://api.jup.ag/price/v2';
@@ -10,7 +12,7 @@ const JUPITER_PRICE_API = 'https://api.jup.ag/price/v2';
 function getCoinGeckoHeaders() {
   const apiKey = process.env.COINGECKO_API_KEY;
   if (!apiKey) {
-    console.warn("Warning: COINGECKO_API_KEY is missing from environment variables.");
+    logger.warn("Warning: COINGECKO_API_KEY is missing from environment variables.");
   }
   return {
     'accept': 'application/json',
@@ -49,8 +51,8 @@ export async function getTrendingTokens() {
         const data = await res.json();
         
         // Isolate pairs for this specific asset and grab the one with the highest liquidity
-        const pairs = data.pairs?.filter((p: any) => p.baseToken.address === token.address) || [];
-        const bestPair = pairs.sort((a: any, b: any) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
+        const pairs = data.pairs?.filter((p: { baseToken: { address: string } }) => p.baseToken.address === token.address) || [];
+        const bestPair = pairs.sort((a: { liquidity?: { usd: number } }, b: { liquidity?: { usd: number } }) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
 
         if (!bestPair) return null;
 
@@ -68,7 +70,7 @@ export async function getTrendingTokens() {
           rank: 0,
         };
       } catch (err) {
-        console.error(`Failed fetching pair for ${token.symbol}:`, err);
+        logger.error(`Failed fetching pair for ${token.symbol}:`, err);
         return null;
       }
     });
@@ -84,7 +86,7 @@ export async function getTrendingTokens() {
     return mappedTokens;
 
   } catch (error) {
-    console.error("Failed to execute concurrent trending fetch:", error);
+    logger.error("Failed to execute concurrent trending fetch:", error);
     
     // Secure UI fallback state using a single guaranteed live token asset (SOL)
     return [{
@@ -181,7 +183,7 @@ export async function getMultipleTokenPrices(addresses: string[]) {
   if (!res.ok) throw new Error(`Jupiter multiple price fetch failed: ${res.status}`);
   
   const data = await res.json();
-  const result: Record<string, any> = {};
+  const result: Record<string, { value: number; priceChange24h: number }> = {};
   
   addresses.forEach((addr) => {
     result[addr] = { value: data.data[addr]?.price || 0, priceChange24h: 0 };

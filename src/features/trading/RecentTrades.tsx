@@ -18,13 +18,9 @@ const RecentTrades = memo(function RecentTrades({ tokenAddress }: RecentTradesPr
   const { data: trades, isLoading } = useRecentTrades(tokenAddress);
 
   return (
-    <div>
-      <div className="px-4 py-2 border-b border-white/[0.04]">
-        <h3 className="text-sm font-semibold text-white">Recent Trades</h3>
-      </div>
-
-      {/* Table header */}
-      <div className="grid grid-cols-[60px_50px_1fr_80px_70px] gap-2 px-4 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider border-b border-white/[0.04]">
+    <div className="h-full flex flex-col">
+      {/* Table header (Sticky) */}
+      <div className="sticky top-0 z-10 bg-[#050505] grid grid-cols-[60px_50px_1fr_80px_70px] gap-2 px-4 py-2 text-[10px] font-medium text-gray-500 uppercase tracking-wider border-b border-white/[0.04]">
         <span>Time</span>
         <span>Side</span>
         <span>Wallet</span>
@@ -33,7 +29,7 @@ const RecentTrades = memo(function RecentTrades({ tokenAddress }: RecentTradesPr
       </div>
 
       {/* Trade list */}
-      <div className="max-h-[280px] overflow-y-auto scrollbar-thin">
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
         {isLoading ? (
           Array.from({ length: 8 }).map((_, i) => (
             <TableRowSkeleton key={i} cols={5} />

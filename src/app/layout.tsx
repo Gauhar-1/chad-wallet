@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import AppProviders from '@/providers/AppProviders';
-import Header from '@/components/layout/Header';
 import TokenBanner from '@/components/common/TokenBanner';
 
 const inter = Inter({
@@ -52,11 +51,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} dark`}>
       <body className="font-sans bg-[#0a0e1a] text-white antialiased min-h-screen flex flex-col">
         <AppProviders>
-
           
-          {/* Header */}
-          <Header />
-
           {/* Main content */}
           <main className="flex-1">{children}</main>
 

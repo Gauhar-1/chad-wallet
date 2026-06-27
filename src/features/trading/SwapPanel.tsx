@@ -20,25 +20,24 @@ const SwapPanel = memo(function SwapPanel({ tokenAddress }: SwapPanelProps) {
   return (
     <AuthGuard>
       <div className="flex flex-col h-full">
-        {/* Tab switcher */}
-        <div className="flex border-b border-white/[0.04]">
-          {(['swap', 'positions'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={cn(
-                'flex-1 py-3 text-sm font-medium capitalize transition-all relative',
-                activeTab === tab
-                  ? 'text-amber-400'
-                  : 'text-gray-500 hover:text-gray-300'
-              )}
-            >
-              {tab === 'swap' ? 'Buy / Sell' : 'Positions'}
-              {activeTab === tab && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />
-              )}
-            </button>
-          ))}
+        {/* Tab switcher - Fomo Segmented Style */}
+        <div className="p-4 border-b border-white/[0.04]">
+          <div className="flex rounded-xl bg-white/[0.03] border border-white/[0.06] p-1">
+            {(['swap', 'positions'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={cn(
+                  'flex-1 py-2 text-[13px] font-semibold rounded-lg capitalize transition-all',
+                  activeTab === tab
+                    ? 'bg-white/[0.08] text-white shadow-sm'
+                    : 'text-gray-500 hover:text-gray-300'
+                )}
+              >
+                {tab === 'swap' ? 'Swap' : 'Positions'}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Tab content */}

@@ -9,8 +9,13 @@ import { PrivyProvider } from '@privy-io/react-auth';
 import { toSolanaWalletConnectors } from '@privy-io/react-auth/solana';
 import { type ReactNode } from 'react';
 
-// 2. Initialize the connectors outside the component to prevent re-renders
-const solanaConnectors = toSolanaWalletConnectors();
+// 2. Initialize the connectors using a global singleton to prevent re-renders
+// and the "WalletConnect Core is already initialized" error during Fast Refresh.
+const globalForSolana = globalThis as unknown as { solanaConnectors?: any };
+const solanaConnectors = globalForSolana.solanaConnectors ?? toSolanaWalletConnectors();
+if (process.env.NODE_ENV !== 'production') {
+  globalForSolana.solanaConnectors = solanaConnectors;
+}
 
 export default function PrivyAuthProvider({ children }: { children: ReactNode }) {
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID;

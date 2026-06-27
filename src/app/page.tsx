@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer';
 import TokenBanner from '@/components/common/TokenBanner';
 import AuthModal from '@/components/auth/AuthModal';
 import { Suspense } from 'react';
+import Header from '@/components/layout/Header';
 
 export default async function HomePage({
   searchParams,
@@ -18,6 +19,7 @@ export default async function HomePage({
 
   return (
     <>
+    <Header />
       <HeroSection />
       {/* Top token banner */}
           <TokenBanner direction="left" speed="fast" />

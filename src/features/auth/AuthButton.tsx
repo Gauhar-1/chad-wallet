@@ -70,22 +70,27 @@ const AuthButton = memo(function AuthButton() {
   }
 
   return (
-    <Button variant="primary" size="sm" onClick={login}>
-      <svg
-        className="w-4 h-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M13 10V3L4 14h7v7l9-11h-7z"
-        />
-      </svg>
-      Connect
-    </Button>
+    <Button 
+  variant="primary" 
+  size="md" 
+  onClick={login}
+  className="tracking-tight lowercase text-[15px]"
+>
+  <svg
+    className="w-[18px] h-[18px] mb-[1px]" 
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2.5}
+      d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"
+    />
+  </svg>
+  login
+</Button>
   );
 });
 

@@ -14,7 +14,7 @@ interface SwapQuoteParams {
   slippageBps: number;
 }
 
-async function fetchSwapQuote(params: SwapQuoteParams) {
+async function fetchSwapQuote(params: SwapQuoteParams, signal?: AbortSignal) {
   const queryParams = new URLSearchParams({
     inputMint: params.inputMint,
     outputMint: params.outputMint,
@@ -22,7 +22,7 @@ async function fetchSwapQuote(params: SwapQuoteParams) {
     slippageBps: params.slippageBps.toString(),
   });
 
-  const response = await fetch(`/api/swap/quote?${queryParams}`);
+  const response = await fetch(`/api/swap/quote?${queryParams}`, { signal });
   if (!response.ok) throw new Error('Failed to fetch swap quote');
   return response.json();
 }
@@ -32,7 +32,7 @@ export function useSwapQuote(params: SwapQuoteParams | null) {
 
   return useQuery({
     queryKey: ['swap-quote', debouncedParams],
-    queryFn: () => fetchSwapQuote(debouncedParams!),
+    queryFn: ({ signal }) => fetchSwapQuote(debouncedParams!, signal),
     enabled:
       !!debouncedParams &&
       !!debouncedParams.inputMint &&

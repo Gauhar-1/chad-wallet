@@ -4,6 +4,7 @@
 // Skeleton — Shimmer loading placeholder
 // =============================================================================
 
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 interface SkeletonProps {
@@ -65,10 +66,29 @@ export function ChartSkeleton() {
 
 /** Pre-built skeleton for a table row */
 export function TableRowSkeleton({ cols = 5 }: { cols?: number }) {
+  const [mounted, setMounted] = useState(false);
+  const [widths, setWidths] = useState<number[]>([]);
+
+  useEffect(() => {
+    setWidths(Array.from({ length: cols }).map(() => Math.random() * 40 + 40));
+    setMounted(true);
+  }, [cols]);
+
+  if (!mounted) {
+    // Return placeholder with safe default widths during SSR
+    return (
+      <div className="flex items-center gap-4 p-3">
+        {Array.from({ length: cols }).map((_, i) => (
+          <Skeleton key={i} width="60%" height={14} className="flex-1" />
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-4 p-3">
-      {Array.from({ length: cols }).map((_, i) => (
-        <Skeleton key={i} width={`${Math.random() * 40 + 40}%`} height={14} className="flex-1" />
+      {widths.map((w, i) => (
+        <Skeleton key={i} width={`${w}%`} height={14} className="flex-1" />
       ))}
     </div>
   );

@@ -5,7 +5,7 @@
 // =============================================================================
 
 import { useEffect, useRef, useState, memo, useCallback } from 'react';
-import { createChart, type IChartApi, ColorType, CrosshairMode, CandlestickSeries } from 'lightweight-charts';
+import { createChart, type IChartApi, ColorType, CrosshairMode, CandlestickSeries, HistogramSeries } from 'lightweight-charts';
 import { useTokenOHLCV } from '@/hooks/useTokenOHLCV';
 import { ChartSkeleton } from '@/components/ui/Skeleton';
 import { CHART_TIMEFRAMES } from '@/lib/constants';
@@ -40,27 +40,25 @@ const PriceChart = memo(function PriceChart({ tokenAddress }: PriceChartProps) {
       width: chartContainerRef.current.clientWidth,
       height: 400,
       layout: {
-        background: { type: ColorType.Solid, color: 'transparent' },
-        textColor: '#6b7280',
+        background: { type: ColorType.Solid, color: '#0A0D14' },
+        textColor: '#8F9BB3',
         fontSize: 11,
       },
       grid: {
-        vertLines: { color: 'rgba(255,255,255,0.03)' },
-        horzLines: { color: 'rgba(255,255,255,0.03)' },
+        vertLines: { color: 'rgba(255,255,255,0.02)' },
+        horzLines: { color: 'rgba(255,255,255,0.02)' },
       },
       crosshair: {
-        mode: CrosshairMode.Normal,
+        mode: 1, // CrosshairMode.Normal
         vertLine: {
-          color: 'rgba(245, 158, 11, 0.3)',
+          color: '#4ade80',
           width: 1,
           style: 3,
-          labelBackgroundColor: '#f59e0b',
         },
         horzLine: {
-          color: 'rgba(245, 158, 11, 0.3)',
+          color: '#4ade80',
           width: 1,
           style: 3,
-          labelBackgroundColor: '#f59e0b',
         },
       },
       timeScale: {
@@ -74,24 +72,45 @@ const PriceChart = memo(function PriceChart({ tokenAddress }: PriceChartProps) {
     });
 
     const candlestickSeries = chart.addSeries(CandlestickSeries, {
-      upColor: '#10b981',
+      upColor: '#4ade80',
       downColor: '#ef4444',
-      borderUpColor: '#10b981',
+      borderUpColor: '#4ade80',
       borderDownColor: '#ef4444',
-      wickUpColor: '#10b981',
+      wickUpColor: '#4ade80',
       wickDownColor: '#ef4444',
     });
 
-    // Sort candles by time and deduplicate, and cast to CandlestickData array
+    const volumeSeries = chart.addSeries(HistogramSeries, {
+      color: '#26a69a',
+      priceFormat: { type: 'volume' },
+      priceScaleId: '',
+    });
+
+    volumeSeries.priceScale().applyOptions({
+      scaleMargins: { top: 0.8, bottom: 0 },
+    });
+
+    // Sort candles by time and deduplicate
     const sortedCandles = [...candles]
       .sort((a, b) => a.time - b.time)
-      .filter((c, i, arr) => i === 0 || c.time !== arr[i - 1].time)
-      .map(c => ({
-        ...c,
-        time: c.time as import('lightweight-charts').UTCTimestamp,
-      }));
+      .filter((c, i, arr) => i === 0 || c.time !== arr[i - 1].time);
 
-    candlestickSeries.setData(sortedCandles);
+    // Map to CandlestickData
+    const candleData = sortedCandles.map(c => ({
+      ...c,
+      time: c.time as import('lightweight-charts').UTCTimestamp,
+    }));
+
+    // Map to HistogramData for Volume
+    const volumeData = sortedCandles.map(c => ({
+      time: c.time as import('lightweight-charts').UTCTimestamp,
+      value: c.volume || 0,
+      color: c.close >= c.open ? 'rgba(74, 222, 128, 0.5)' : 'rgba(239, 68, 68, 0.5)',
+    }));
+
+    candlestickSeries.setData(candleData);
+    volumeSeries.setData(volumeData);
+    
     chart.timeScale().fitContent();
 
     chartRef.current = chart;

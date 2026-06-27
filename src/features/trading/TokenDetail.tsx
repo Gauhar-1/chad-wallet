@@ -41,57 +41,82 @@ const TokenDetail = memo(function TokenDetail({ tokenAddress }: TokenDetailProps
   }
 
   return (
-    <div className="p-4 border-b border-white/[0.04]">
-      {/* Token header */}
-      <div className="flex items-start gap-4 mb-4">
+    <div className="flex items-center gap-6 h-full px-4 min-w-max">
+      {/* Token header (Icon, Name, Symbol) */}
+      <div className="flex items-center gap-3 pr-6 border-r border-white/[0.04] shrink-0">
         <TokenIcon
           logoURI={token.logoURI}
           symbol={token.symbol || '?'}
-          size={48}
+          size={32}
         />
-        <div className="flex-1">
+        <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-white">{token.name}</h1>
-            <span className="text-sm text-gray-500">{token.symbol}</span>
+            <h1 className="text-[15px] font-bold text-white tracking-tight">{token.symbol}</h1>
+            <a
+              href={`${SOLANA_EXPLORER}/token/${tokenAddress}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[11px] text-[#8F9BB3] hover:text-gray-300 transition-colors"
+            >
+              {token.name}
+            </a>
           </div>
-          <div className="flex items-center gap-3 mt-1">
-            <PriceDisplay price={token.price || 0} size="lg" />
+          <div className="text-[11px] text-[#8F9BB3] font-mono mt-0.5">
+            {truncateAddress(tokenAddress, 6)}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Stats */}
+      <div className="flex items-center gap-8 shrink-0">
+        <div className="flex flex-col">
+          <span className="text-[11px] text-[#8F9BB3] uppercase tracking-wide mb-0.5">
+            Market cap
+          </span>
+          <span className="text-[15px] font-bold text-white tabular-nums tracking-tight">
+            ${formatCompact(token.mc || 0)}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-[#8F9BB3] uppercase tracking-wide mb-0.5">
+            Price
+          </span>
+          <span className="text-[15px] font-bold text-white tabular-nums tracking-tight">
+            ${token.price ? formatCompact(token.price) : '0.00'}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-[#8F9BB3] uppercase tracking-wide mb-0.5">
+            24H change
+          </span>
+          <div className="text-[15px] font-bold tracking-tight">
             <PercentChange value={token.priceChange24hPercent || 0} size="md" />
           </div>
         </div>
-        <a
-          href={`${SOLANA_EXPLORER}/token/${tokenAddress}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-gray-500 hover:text-gray-300 transition-colors font-mono"
-        >
-          {truncateAddress(tokenAddress, 6)}
-          <svg className="w-3 h-3 inline ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </a>
-      </div>
-
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: 'Market Cap', value: `$${formatCompact(token.mc || 0)}` },
-          { label: '24h Volume', value: `$${formatCompact(token.volume24hUSD || 0)}` },
-          { label: 'Liquidity', value: `$${formatCompact(token.liquidity || 0)}` },
-          { label: 'Holders', value: formatCompact(token.holder || 0) },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="px-3 py-2 rounded-xl bg-white/[0.02] border border-white/[0.04]"
-          >
-            <div className="text-[10px] text-gray-500 uppercase tracking-wider">
-              {stat.label}
-            </div>
-            <div className="text-sm font-semibold text-white mt-0.5">
-              {stat.value}
-            </div>
-          </div>
-        ))}
+        <div className="flex flex-col">
+          <span className="text-[11px] text-[#8F9BB3] uppercase tracking-wide mb-0.5">
+            24H Vol.
+          </span>
+          <span className="text-[15px] font-bold text-white tabular-nums tracking-tight">
+            ${formatCompact(token.volume24hUSD || 0)}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-[#8F9BB3] uppercase tracking-wide mb-0.5">
+            Liquidity
+          </span>
+          <span className="text-[15px] font-bold text-white tabular-nums tracking-tight">
+            ${formatCompact(token.liquidity || 0)}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-[11px] text-[#8F9BB3] uppercase tracking-wide mb-0.5">
+            Holders
+          </span>
+          <span className="text-[15px] font-bold text-white tabular-nums tracking-tight">
+            {formatCompact(token.holder || 0)}
+          </span>
+        </div>
       </div>
     </div>
   );
