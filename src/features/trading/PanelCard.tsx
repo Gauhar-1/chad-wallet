@@ -136,6 +136,10 @@ export const PanelCard = ({
               </button>
             ))}
 
+          </DraggableScroll>
+
+          <div className="flex items-center gap-1 shrink-0 bg-transparent pl-2 border-l border-white/[0.04]">
+          
             {isFirstPanel && onToggleSidebar && (
               <button 
                 onClick={onToggleSidebar}
@@ -147,9 +151,6 @@ export const PanelCard = ({
                 </svg>
               </button>
             )}
-          </DraggableScroll>
-
-          <div className="flex items-center gap-1 shrink-0 bg-transparent pl-2 border-l border-white/[0.04]">
             {!hideClose && onClose && (
               <button
                 onClick={onClose}
@@ -195,22 +196,22 @@ export const PanelCard = ({
       {/* ----------------- Split Controls Overlay ----------------- */}
       {/* Redesigned to appear at the bottom-center of the panel on hover, matching fomo aesthetics */}
       {(canSplitRight || canSplitBottom) && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5  group-hover/panel:opacity-100 transition-opacity duration-200 z-20 pointer-events-none">
+        <div className="absolute bottom-3 w-full px-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5  group-hover/panel:opacity-100 transition-opacity duration-200 z-20 pointer-events-none">
           {canSplitBottom && (
             <button
               onClick={onSplitBottom}
-              className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 bg-[#1E222D]/90 backdrop-blur-sm border border-white/10 rounded-full shadow-xl text-[11px] font-semibold text-white hover:bg-[#2A2E39] hover:border-white/20 transition-all hover:scale-105"
+              className="pointer-events-auto w-full text-center flex items-center justify-center gap-1.5 px-3 py-1.5 bg-transparent backdrop-blur-sm border border-white/10 rounded-lg shadow-xl text-[11px] font-semibold text-white hover:bg-[#2A2E39] hover:border-white/20 transition-all hover:scale-105"
             >
               <svg className="w-3.5 h-3.5 text-[#4ade80]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 13H5v-2h14v2z" />
               </svg>
-              Split bottom
+             <span>Split bottom</span> 
             </button>
           )}
           {canSplitRight && (
             <button
               onClick={onSplitRight}
-              className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 bg-[#1E222D]/90 backdrop-blur-sm border border-white/10 rounded-full shadow-xl text-[11px] font-semibold text-white hover:bg-[#2A2E39] hover:border-white/20 transition-all hover:scale-105"
+              className="pointer-events-auto w-full text-center flex items-center justify-center gap-1.5 px-3 py-1.5 bg-transparent backdrop-blur-sm border border-white/10 rounded-lg shadow-xl text-[11px] font-semibold text-white hover:bg-[#2A2E39] hover:border-white/20 transition-all hover:scale-105"
             >
               <svg className="w-3.5 h-3.5 text-[#4ade80]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 5v14m7-7H5" />

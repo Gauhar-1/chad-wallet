@@ -75,8 +75,8 @@ export default function LeftSidebar({ isOpen, onToggle }: LeftSidebarProps) {
             {...getCommonProps('q1')}
             defaultTab="Tokens"
             defaultSubTag="Trending"
-            canSplitRight={!qs.q2 && !hasRightColumn}
-            canSplitBottom={!qs.q3 && !hasBottomRow}
+            canSplitRight={!qs.q2 }
+            canSplitBottom={!qs.q3 }
             onSplitRight={() => setQs((p) => ({ ...p, q2: true }))}
             onSplitBottom={() => setQs((p) => ({ ...p, q3: true }))}
             gridPlacement={cn("col-start-1 row-start-1", !qs.q3 && rowsCount === 2 ? "row-span-2" : "row-span-1")}
@@ -86,10 +86,10 @@ export default function LeftSidebar({ isOpen, onToggle }: LeftSidebarProps) {
         {qs.q2 && (
           <PanelCard
             {...getCommonProps('q2')}
-            defaultTab="Leaderboard"
-            defaultSubTag="24H"
+            defaultTab="Tokens"
+            defaultSubTag="Trending"
             canSplitRight={false}
-            canSplitBottom={!qs.q4 && !hasBottomRow}
+            canSplitBottom={!qs.q4}
             onSplitBottom={() => setQs((p) => ({ ...p, q4: true }))}
             gridPlacement={cn(hasLeftColumn ? "col-start-2" : "col-start-1", "row-start-1", !qs.q4 && rowsCount === 2 ? "row-span-2" : "row-span-1")}
           />
@@ -98,9 +98,9 @@ export default function LeftSidebar({ isOpen, onToggle }: LeftSidebarProps) {
         {qs.q3 && (
           <PanelCard
             {...getCommonProps('q3')}
-            defaultTab="Alerts"
-            defaultSubTag="All"
-            canSplitRight={!qs.q4 && !hasRightColumn}
+            defaultTab="Tokens"
+            defaultSubTag="Trending"
+            canSplitRight={!qs.q4}
             canSplitBottom={false}
             onSplitRight={() => setQs((p) => ({ ...p, q4: true }))}
             gridPlacement={cn("col-start-1", qs.q1 ? "row-start-2" : "row-start-1", !qs.q1 && rowsCount === 2 ? "row-span-2" : "row-span-1")}
@@ -110,8 +110,8 @@ export default function LeftSidebar({ isOpen, onToggle }: LeftSidebarProps) {
         {qs.q4 && (
           <PanelCard
             {...getCommonProps('q4')}
-            defaultTab="Feed"
-            defaultSubTag="Global"
+            defaultTab="Tokens"
+            defaultSubTag="Trending"
             canSplitRight={false}
             canSplitBottom={false}
             gridPlacement={cn(hasLeftColumn ? "col-start-2" : "col-start-1", qs.q2 ? "row-start-2" : "row-start-1", !qs.q2 && rowsCount === 2 ? "row-span-2" : "row-span-1")}

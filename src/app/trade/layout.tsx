@@ -72,7 +72,7 @@ const activeWalletAddress = activeWallet?.address;
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-12 py-2 border border-white/[0.04] rounded-full leading-5 bg-[#0a0d14] text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm transition-all"
+            className="block w-full pl-10 pr-12 py-2 border border-white/[0.04] rounded-full leading-5 bg-transparent text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm transition-all"
             placeholder="Search for tokens or traders..."
           />
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

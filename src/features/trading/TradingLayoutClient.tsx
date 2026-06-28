@@ -17,10 +17,23 @@ export default function TradingLayoutClient({ tokenAddress }: TradingLayoutClien
   return (
     <div className="flex h-full w-full overflow-hidden bg-[#050505] text-white font-sans tabular-nums selection:bg-white/10">
       
-      {/* LEFT PANEL: 
-        We removed the hardcoded w-[320px] wrapper. 
-        LeftSidebar now fully controls its own dynamic expanding/collapsing width.
-      */}
+      {!isSidebarOpen && (
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="absolute left-0 top-1/10 -translate-y-1/2 z-50 flex items-center justify-center p-2 pl-1.5 pr-2.5 bg-[#1E222D]/90 backdrop-blur-md border border-l-0 border-white/10 rounded-r-xl shadow-2xl hover:bg-[#2A2E39] hover:pr-4 transition-all duration-300 group"
+          title="Expand Sidebar"
+        >
+          <svg 
+            className="w-4 h-4 text-[#8F9BB3] group-hover:text-white transition-colors" 
+            fill="none" 
+            viewBox="0 0 24 24" 
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          </svg>
+        </button>
+      )}
+
       <LeftSidebar 
         isOpen={isSidebarOpen} 
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
