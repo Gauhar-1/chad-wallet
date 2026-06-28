@@ -12,10 +12,12 @@ import { SOLANA_EXPLORER } from '@/lib/constants';
 
 interface TopHoldersProps {
   tokenAddress: string;
+  thesisOnly?: boolean;
+  friendsOnly?: boolean;
 }
 
-const TopHolders = memo(function TopHolders({ tokenAddress }: TopHoldersProps) {
-  const { data: holders, isLoading } = useTopHolders(tokenAddress);
+const TopHolders = memo(function TopHolders({ tokenAddress, thesisOnly, friendsOnly }: TopHoldersProps) {
+  const { data: holders, isLoading } = useTopHolders(tokenAddress, { thesisOnly, friendsOnly });
 
   return (
     <div className="h-full flex flex-col">

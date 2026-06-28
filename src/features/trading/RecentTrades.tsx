@@ -12,10 +12,12 @@ import { SOLANA_EXPLORER } from '@/lib/constants';
 
 interface RecentTradesProps {
   tokenAddress: string;
+  thesisOnly?: boolean;
+  friendsOnly?: boolean;
 }
 
-const RecentTrades = memo(function RecentTrades({ tokenAddress }: RecentTradesProps) {
-  const { data: trades, isLoading } = useRecentTrades(tokenAddress);
+const RecentTrades = memo(function RecentTrades({ tokenAddress, thesisOnly, friendsOnly }: RecentTradesProps) {
+  const { data: trades, isLoading } = useRecentTrades(tokenAddress, { thesisOnly, friendsOnly });
 
   return (
     <div className="h-full flex flex-col">

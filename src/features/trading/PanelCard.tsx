@@ -1,6 +1,5 @@
 'use client'
 import React, { useState, useRef } from "react";
-// Assuming QuadrantState is defined elsewhere in your project
 import { QuadrantState } from "./LeftSidebar"; 
 import { cn } from "@/lib/utils";
 
@@ -18,7 +17,8 @@ interface PanelProps {
   tabs: TabConfig[];
   defaultTab: string;
   defaultSubTag?: string;
-  content: React.ReactNode; 
+  // Upgrade: Content is now a function that receives the active tab state
+  content: (activeTab: string, activeSubTag: string) => React.ReactNode; 
   canSplitRight?: boolean;
   canSplitBottom?: boolean;
   onSplitRight?: () => void;
@@ -26,12 +26,12 @@ interface PanelProps {
   onClose?: () => void;
   hideClose?: boolean;
   gridPlacement: string;
+
+  isFirstPanel?: boolean;
+  onToggleSidebar?: () => void;
 }
 
-// ============================================================================
-// Draggable Scroll Helper Component
-// ============================================================================
-
+// ... (DraggableScroll helper component remains exactly the same as your code) ...
 const DraggableScroll = ({ children, className }: { children: React.ReactNode, className?: string }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -44,15 +44,13 @@ const DraggableScroll = ({ children, className }: { children: React.ReactNode, c
     setStartX(e.pageX - scrollRef.current.offsetLeft);
     setScrollLeft(scrollRef.current.scrollLeft);
   };
-
   const handleMouseLeave = () => { setIsDragging(false); };
   const handleMouseUp = () => { setIsDragging(false); };
-
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging || !scrollRef.current) return;
     e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 2; // Scroll-fast multiplier
+    const walk = (x - startX) * 2;
     scrollRef.current.scrollLeft = scrollLeft - walk;
   };
 
@@ -90,24 +88,23 @@ export const PanelCard = ({
   onClose,
   hideClose,
   gridPlacement,
+  isFirstPanel,
+  onToggleSidebar
 }: PanelProps) => {
   const [activeTab, setActiveTab] = useState(defaultTab);
   
-  // Find current tab config to check for subTags
   const currentTabConfig = tabs.find(t => t.label === activeTab);
   const hasSubTags = currentTabConfig?.subTags && currentTabConfig.subTags.length > 0;
   
-  // Initialize active subtag based on default, or default to the first available subtag
   const [activeSubTag, setActiveSubTag] = useState(
     defaultSubTag || (hasSubTags ? currentTabConfig!.subTags![0] : "")
   );
 
-  // Handle Main Tab Click
   const handleTabClick = (label: string) => {
     setActiveTab(label);
     const newTabConfig = tabs.find(t => t.label === label);
     if (newTabConfig?.subTags && newTabConfig.subTags.length > 0) {
-      setActiveSubTag(newTabConfig.subTags[0]); // Auto-select first sub-tag on switch
+      setActiveSubTag(newTabConfig.subTags[0]);
     } else {
       setActiveSubTag("");
     }
@@ -116,22 +113,20 @@ export const PanelCard = ({
   return (
     <div
       className={cn(
-        "bg-[#0A0D14] rounded-xl border border-white/[0.04] shadow-2xl flex flex-col overflow-hidden transition-all duration-300",
+        "bg-transparent rounded-xl border border-white/[0.04] shadow-2xl flex flex-col overflow-hidden transition-all duration-300 relative group/panel",
         gridPlacement
       )}
     >
       {/* ----------------- Header Section ----------------- */}
-      <div className="shrink-0 flex flex-col border-b border-white/[0.04] bg-[#0A0D14] z-10">
-        
-        {/* Top Row: Main Tabs & Controls */}
-        <div className="h-10 flex items-center justify-between px-3">
-          <DraggableScroll className="flex-1 gap-4 mr-2">
+      <div className="shrink-0 flex flex-col border-b border-white/[0.04] bg-transparent z-10">
+        <div className="h-10 flex items-center bg-[#0A0D14] justify-between px-3">
+          <DraggableScroll className="flex-1  gap-4 mr-2">
             {tabs.map((tab) => (
               <button
                 key={tab.label}
                 onClick={() => handleTabClick(tab.label)}
                 className={cn(
-                  "py-2 text-[12px] font-semibold tracking-wide transition-colors whitespace-nowrap",
+                  "py-2 text-[12px] font-semibold tracking-wide  transition-colors whitespace-nowrap",
                   activeTab === tab.label
                     ? "text-white"
                     : "text-[#8F9BB3] hover:text-[#d1d5db]"
@@ -140,21 +135,25 @@ export const PanelCard = ({
                 {tab.label}
               </button>
             ))}
+
+            {isFirstPanel && onToggleSidebar && (
+              <button 
+                onClick={onToggleSidebar}
+                className="py-2 ml-1 text-[#8F9BB3] hover:text-white transition-colors flex items-center"
+                title="Collapse Sidebar"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
           </DraggableScroll>
 
-          {/* Global Panel Actions (Settings / Close) */}
-          <div className="flex items-center gap-1 shrink-0 bg-[#0A0D14] pl-2 border-l border-white/[0.04]">
-            <button className="p-1.5 text-[#8F9BB3] hover:text-white rounded-md hover:bg-white/[0.04] transition-colors">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
-            
+          <div className="flex items-center gap-1 shrink-0 bg-transparent pl-2 border-l border-white/[0.04]">
             {!hideClose && onClose && (
               <button
                 onClick={onClose}
-                className="p-1.5 text-[#8F9BB3] hover:text-white rounded-md hover:bg-white/[0.04] transition-colors"
+                className="p-1.5 text-[#8F9BB3] hover:text-[#f87171] rounded-md hover:bg-white/[0.04] transition-colors"
                 title="Close panel"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -165,7 +164,6 @@ export const PanelCard = ({
           </div>
         </div>
 
-        {/* Bottom Row: Sub-Tabs (Conditional) */}
         {hasSubTags && (
           <div className="h-9 flex items-center px-3 pb-1 border-t border-white/[0.02]">
              <DraggableScroll className="flex-1 gap-1.5">
@@ -189,24 +187,22 @@ export const PanelCard = ({
       </div>
 
       {/* ----------------- Internal Content Area ----------------- */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin bg-[#0A0D14]">
-        {/* If you need the content to dynamically change based on activeTab/SubTag, 
-          you can pass them down into a render prop like:
-          {typeof content === 'function' ? content(activeTab, activeSubTag) : content}
-        */}
-        {content}
+      <div className="flex-1 overflow-y-auto scrollbar-thin bg-transparent relative">
+        {/* We now execute the content function, passing the state up */}
+        {content(activeTab, activeSubTag)}
       </div>
 
-      {/* ----------------- Bottom Control Bar ----------------- */}
+      {/* ----------------- Split Controls Overlay ----------------- */}
+      {/* Redesigned to appear at the bottom-center of the panel on hover, matching fomo aesthetics */}
       {(canSplitRight || canSplitBottom) && (
-        <div className="h-8 shrink-0 border-t border-white/[0.02] bg-[#07090e] flex items-center gap-1.5 px-2">
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5  group-hover/panel:opacity-100 transition-opacity duration-200 z-20 pointer-events-none">
           {canSplitBottom && (
             <button
               onClick={onSplitBottom}
-              className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium text-[#8F9BB3] hover:text-white hover:bg-white/[0.04] transition-all border border-transparent hover:border-white/[0.05]"
+              className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 bg-[#1E222D]/90 backdrop-blur-sm border border-white/10 rounded-full shadow-xl text-[11px] font-semibold text-white hover:bg-[#2A2E39] hover:border-white/20 transition-all hover:scale-105"
             >
-              <svg className="w-3 h-3 text-[#4ade80]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13H5v-2h14v2z" />
+              <svg className="w-3.5 h-3.5 text-[#4ade80]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 13H5v-2h14v2z" />
               </svg>
               Split bottom
             </button>
@@ -214,10 +210,10 @@ export const PanelCard = ({
           {canSplitRight && (
             <button
               onClick={onSplitRight}
-              className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-medium text-[#8F9BB3] hover:text-white hover:bg-white/[0.04] transition-all border border-transparent hover:border-white/[0.05]"
+              className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 bg-[#1E222D]/90 backdrop-blur-sm border border-white/10 rounded-full shadow-xl text-[11px] font-semibold text-white hover:bg-[#2A2E39] hover:border-white/20 transition-all hover:scale-105"
             >
-              <svg className="w-3 h-3 text-[#4ade80]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
+              <svg className="w-3.5 h-3.5 text-[#4ade80]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 5v14m7-7H5" />
               </svg>
               Split right
             </button>

@@ -31,7 +31,6 @@ const activeWallet = wallets.find((w: any) => w.walletClientType === 'privy') ||
 const activeWalletAddress = activeWallet?.address;
 
   useEffect(() => {
-    console.log("Ready:", ready, "| Wallets found:", wallets.length, "| Active Address:", activeWalletAddress);
 
   // Don't run until Privy is fully initialized and we have an address
   if (!ready || !activeWalletAddress) return;

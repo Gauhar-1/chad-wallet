@@ -242,38 +242,6 @@ const SwapForm = memo(function SwapForm({ tokenAddress }: SwapFormProps) {
         </div>
       )}
 
-      {/* Volume Progress Bars Placeholder */}
-      <div className="pt-4 mt-6 border-t border-white/[0.04]">
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">Buy / Sell Volume</h4>
-        <div className="space-y-3">
-          <div>
-            <div className="flex justify-between text-[11px] text-gray-500 mb-1">
-              <span>Buys (24h)</span>
-              <span className="text-emerald-400 font-medium">68%</span>
-            </div>
-            <div className="h-1.5 w-full bg-white/[0.04] rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-500 w-[68%]" />
-            </div>
-          </div>
-          <div>
-            <div className="flex justify-between text-[11px] text-gray-500 mb-1">
-              <span>Sells (24h)</span>
-              <span className="text-red-400 font-medium">32%</span>
-            </div>
-            <div className="h-1.5 w-full bg-white/[0.04] rounded-full overflow-hidden">
-              <div className="h-full bg-red-500 w-[32%]" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* About Token Placeholder */}
-      <div className="pt-4 mt-4 border-t border-white/[0.04]">
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">About Token</h4>
-        <p className="text-xs text-gray-500 leading-relaxed">
-          This token is actively traded on the Solana blockchain. Real-time market data is provided by Jupiter and DexScreener.
-        </p>
-      </div>
     </div>
   );
 });

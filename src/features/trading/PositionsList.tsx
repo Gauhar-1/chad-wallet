@@ -8,7 +8,11 @@ import { memo } from 'react';
 import TokenIcon from '@/components/common/TokenIcon';
 import { formatPrice, formatCompact } from '@/lib/utils';
 
-const PositionsList = memo(function PositionsList() {
+interface PositionsListProps {
+  status?: 'open' | 'closed';
+}
+
+const PositionsList = memo(function PositionsList({ status = 'open' }: PositionsListProps) {
   // In a real implementation, this would use useUserPositions with the wallet address
   // from Privy's embedded wallet. For now, show a connect prompt.
 
